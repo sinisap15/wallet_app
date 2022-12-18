@@ -1,5 +1,6 @@
 const { pool } = require('./server');
 
+// Deposit or win transaction
 async function addFunds(addedFunds, wallet_id) {
     var funds = parseInt(await (await pool.query(`SELECT funds FROM wallet WHERE wallet_id = ${wallet_id}`)).rows[0].funds);
     var newFunds = funds + addedFunds;

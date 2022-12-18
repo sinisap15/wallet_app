@@ -1,5 +1,6 @@
 const { pool } = require('./server');
 
+// Withdraw or lose transaction
 async function removeFunds(removedFunds, wallet_id) {
     var funds = parseInt(await (await pool.query(`SELECT funds FROM wallet WHERE wallet_id = ${wallet_id}`)).rows[0].funds);
     if (funds > removedFunds) {
