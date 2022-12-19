@@ -11,4 +11,4 @@ async function retrieveData(userId) {
     }
 }
 
-retrieveData(1);
+retrieveData(8);
