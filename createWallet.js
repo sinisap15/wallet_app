@@ -25,4 +25,4 @@ async function createWallet(user) {
     }
 }
 
-createWallet(3);
+createWallet(8);
