@@ -3,6 +3,7 @@ const router = express.Router()
 const { pool } = require('../methods/db.js')
 const createUser = require('../methods/createUser.js')
 const addFunds = require('../methods/addFunds.js')
+const removeFunds = require('../methods/removeFunds.js')
 
 router.post('/profile', (req, res) => {
     const body = req.body
@@ -46,6 +47,16 @@ router.post('/deposit/:userId', async(req,res) => {
     var walletId = (await(await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
     var username = (await(await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
     addFunds(amount, walletId);
+    res.redirect('/profile/' + username)
+})
+
+router.post('/withdraw/:userId', async(req,res) => {
+    const body = req.body
+    const userId = req.params.userId
+    const amount = parseFloat(body.withdraw)
+    var walletId = (await(await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var username = (await(await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    removeFunds(amount, walletId);
     res.redirect('/profile/' + username)
 })
 
