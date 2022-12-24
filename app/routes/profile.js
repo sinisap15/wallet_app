@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { pool } = require('../methods/db.js')
 const createUser = require('../methods/createUser.js')
+const addFunds = require('../methods/addFunds.js')
 
 router.post('/profile', (req, res) => {
     const body = req.body
@@ -18,6 +19,7 @@ router.get('/profile/:username', async (req, res) => {
         var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
         if (walletId != undefined) {
             var wallet_funds = (await (await (pool.query(`SELECT funds FROM wallet WHERE wallet_id = '${walletId}'`))).rows[0]?.funds);
+            console.log(wallet_funds)
         }
         const user = {
             userId,
@@ -35,6 +37,16 @@ router.post('/addProfile', (req, res) => {
     createUser(body.username, body.firstName, body.lastName, body.password, body.email, new Date());
     res.send('User added to database');
     // res.redirect('/profile/' + body.username)
+})
+
+router.post('/deposit/:userId', async(req,res) => {
+    const body = req.body
+    const userId = req.params.userId
+    const amount = parseFloat(body.deposit)
+    var walletId = (await(await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var username = (await(await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    addFunds(amount, walletId);
+    res.redirect('/profile/' + username)
 })
 
 module.exports = router

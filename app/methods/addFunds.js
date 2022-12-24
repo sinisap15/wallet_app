@@ -1,4 +1,4 @@
-const { pool } = require('../server');
+const { pool } = require('./db.js');
 
 // Deposit or win transaction
 async function addFunds(addedFunds, wallet_id) {
@@ -18,4 +18,5 @@ async function addFunds(addedFunds, wallet_id) {
     }
 }
 
-addFunds(500, 10);
+module.exports = addFunds;
+// addFunds(500, 10);

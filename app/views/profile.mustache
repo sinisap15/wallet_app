@@ -12,6 +12,11 @@
     <a href="/createWallet/{{userId}}">
         <button> Create Wallet </button>
     </a>
+    
+    <form action="/deposit/{{userId}}" method="POST">
+        <input type="number" name="deposit" placeholder="Deposit Amount">
+        <input type="submit" Value="Deposit"/>
+    </form>
 </body>
 
 </html>
