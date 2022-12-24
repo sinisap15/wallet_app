@@ -1,4 +1,4 @@
-const { pool } = require('./server');
+const { pool } = require('./db.js');
 
 async function createWallet(user) {
     var userList = await pool.query(`SELECT * FROM accounts WHERE user_id = ${user}`);
@@ -25,4 +25,6 @@ async function createWallet(user) {
     }
 }
 
-createWallet(8);
+module.exports = createWallet;
+
+// createWallet(8);

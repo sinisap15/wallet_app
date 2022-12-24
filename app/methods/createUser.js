@@ -1,11 +1,11 @@
-const { pool } = require('./server');
+const { pool } = require('./db.js')
 
-async function insertData() {
-    const [username, firstname, lastname, password, email, created_on] = process.argv.slice(2);
+async function createUser(username, firstName, lastName, password, email, createdOn) {
+    var createdOn = new Date();
     try {
         const res = await pool.query(
         "INSERT INTO accounts (username, firstname, lastname, password, email, created_on) VALUES ($1, $2, $3, $4, $5, $6)",
-        [username, firstname, lastname, password, email, created_on]
+        [username, firstName, lastName, password, email, createdOn]
     );
     console.log(`Added a user with the name ${username}`);
     } catch (err) {
@@ -13,4 +13,4 @@ async function insertData() {
     }
 }
 
-insertData();
+module.exports = createUser;

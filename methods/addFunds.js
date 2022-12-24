@@ -1,4 +1,4 @@
-const { pool } = require('./server');
+const { pool } = require('../server');
 
 // Deposit or win transaction
 async function addFunds(addedFunds, wallet_id) {
