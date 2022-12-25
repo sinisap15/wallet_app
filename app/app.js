@@ -3,7 +3,12 @@ const vertex = require('vertex360')({ site_id: process.env.TURBO_APP_ID })
 const express = require('express')
 const { Pool } = require('pg');
 
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+
 const app = express() // initialize app
+
+app.use(cookieParser());
 
 /*  Apps are configured with settings as shown in the conig object below.
     Options include setting views directory, static assets directory,
