@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <title>Wallet App</title>
+</head>
+
+<body>
+    <h1>Profile</h1>
+
+    <h3>Your funds: {{ funds }}</h3>
+    
+    <form action="/bet/{{userId}}" method="POST">
+        <input type="number" name="bet" placeholder="Bet">
+        <input type="submit" Value="Bet"/>
+    </form>
+    <form action="/win/{{userId}}" method="POST">
+        <input type="number" name="win" placeholder="Win">
+        <input type="submit" Value="Win"/>
+    </form>
+
+    <div class="row">
+        <div class="col-3">
+            <a href="/profile/{{username}}">
+                <button> Home </button>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
