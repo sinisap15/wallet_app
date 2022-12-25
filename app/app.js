@@ -35,13 +35,11 @@ vertex.configureApp(app, config)
 
 // import routes
 const index = require('./routes/index')
-const register = require('./routes/register')
 const profile = require('./routes/profile')
 const bet = require('./routes/bet')
 
 // set routes
 app.use('/', index)
-app.use('/register', register)
 app.use('/', profile)
 app.use('/', bet)
 

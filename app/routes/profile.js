@@ -1,10 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const { pool } = require('../methods/db.js')
-const createUser = require('../methods/createUser.js')
-const createWallet = require('../methods/createWallet.js')
-const addFunds = require('../methods/addFunds.js')
-const removeFunds = require('../methods/removeFunds.js')
+const { pool } = require('../public/js/db.js')
+const createUser = require('../public/js/createUser.js')
+const createWallet = require('../public/js/createWallet.js')
+const addFunds = require('../public/js/addFunds.js')
+const removeFunds = require('../public/js/removeFunds.js')
 
 router.post('/profile', (req, res) => {
     const body = req.body

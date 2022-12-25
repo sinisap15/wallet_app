@@ -1,8 +1,6 @@
 const express = require('express')
 const router = express.Router()
 
-const { pool } = require('../methods/db.js')
-
 router.get('/', (req, res) => {
   res.render('index', { text: 'This is the dynamic data. Open index.js from the routes directory to see.' })
 })
