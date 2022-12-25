@@ -15,12 +15,20 @@
     
     <form action="/deposit/{{userId}}" method="POST">
         <input type="number" name="deposit" placeholder="Deposit Amount">
-        <input type="submit" Value="Deposit"/>
+        <input type="submit" Value="Deposit" />
     </form>
     <form action="/withdraw/{{userId}}" method="POST">
         <input type="number" name="withdraw" placeholder="Withdraw Amount">
         <input type="submit" Value="Withdraw"/>
     </form>
+
+    <div class="row">
+        <div class="col-3">
+            <a href="/{{userId}}/play">
+                <button> Play </button>
+            </a>
+        </div>
+    </div>
 </body>
 
 </html>

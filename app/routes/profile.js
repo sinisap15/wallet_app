@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { pool } = require('../methods/db.js')
 const createUser = require('../methods/createUser.js')
+const createWallet = require('../methods/createWallet.js')
 const addFunds = require('../methods/addFunds.js')
 const removeFunds = require('../methods/removeFunds.js')
 
@@ -31,6 +32,18 @@ router.get('/profile/:username', async (req, res) => {
     }
 })
 
+router.get('/createWallet/:userId', async (req, res) => {
+    const userId = req.params.userId
+    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    if (walletId == undefined) {
+        createWallet(userId);
+    } else {
+        res.send('User already has a wallet')
+    }
+    res.redirect('/profile/' + username);
+})
+
 router.post('/addProfile', (req, res) => {
     const body = req.body
     // body['skills'] = req.body.skills.split(',')
@@ -40,24 +53,46 @@ router.post('/addProfile', (req, res) => {
     // res.redirect('/profile/' + body.username)
 })
 
-router.post('/deposit/:userId', async(req,res) => {
+router.post('/deposit/:userId', async (req, res) => {
     const body = req.body
     const userId = req.params.userId
     const amount = parseFloat(body.deposit)
-    var walletId = (await(await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
-    var username = (await(await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    console.log(amount);
+    if (amount <= 0 || isNaN(amount)) {
+        res.send('Invalid amount')
+    }
+    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
     addFunds(amount, walletId);
     res.redirect('/profile/' + username)
 })
 
-router.post('/withdraw/:userId', async(req,res) => {
+router.post('/withdraw/:userId', async (req, res) => {
     const body = req.body
     const userId = req.params.userId
     const amount = parseFloat(body.withdraw)
-    var walletId = (await(await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
-    var username = (await(await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    if (amount <= 0 || isNaN(amount)) {
+        res.send('Invalid amount')
+    }
+    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
     removeFunds(amount, walletId);
     res.redirect('/profile/' + username)
+})
+
+router.get('/:userId/play', async(req, res) => {
+    const body = req.body
+    const userId = req.params.userId
+    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var funds = (await (await (pool.query(`SELECT funds FROM wallet WHERE wallet_id = '${walletId}'`))).rows[0]?.funds);
+    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    var user = {
+        userId,
+        username,
+        walletId,
+        funds
+    }
+    res.render('play', user)
 })
 
 module.exports = router

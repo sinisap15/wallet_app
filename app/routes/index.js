@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 
-const createWallet = require('../methods/createWallet.js')
 const { pool } = require('../methods/db.js')
 
 router.get('/', (req, res) => {
@@ -16,18 +15,6 @@ router.get('/query', (req, res) => {
     game: game
   }
   res.render('profile', data);
-})
-
-router.get('/createWallet/:userId', async(req, res) => {
-  const userId = req.params.userId
-  var username = (await(await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
-  var walletId = (await(await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
-  if (walletId == undefined) {
-    createWallet(userId);
-  } else {
-    res.send('User already has a wallet')
-  }
-  res.redirect('/profile/' + username);
 })
 
 router.get('/registerUser', (req, res) => {
