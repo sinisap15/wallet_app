@@ -5,11 +5,11 @@
 </head>
 
 <body>
-    <h1>Profile</h1>
+    <h1>Play</h1>
 
     <h3>Your funds: {{ funds }}</h3>
 
-    <h4>You have bet: {{ bettedAmount }}</h4>
+    <h4>You have lost: {{ bettedAmount }}</h4>
     
     <form action="/bet/{{userId}}" method="POST">
         <input type="number" name="bet" placeholder="Bet">
@@ -23,7 +23,7 @@
     <div class="row">
         <div class="col-3">
             <a href="/profile/{{username}}">
-                <button> Home </button>
+                <button> Exit </button>
             </a>
         </div>
     </div>
