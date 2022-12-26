@@ -5,6 +5,9 @@ const createUser = require('../public/js/createUser.js')
 const createWallet = require('../public/js/createWallet.js')
 const addFunds = require('../public/js/addFunds.js')
 const removeFunds = require('../public/js/removeFunds.js')
+const app = express();
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 router.post('/profile', (req, res) => {
     const body = req.body
@@ -86,11 +89,13 @@ router.get('/:userId/play', async(req, res) => {
     var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
     var funds = (await (await (pool.query(`SELECT funds FROM wallet WHERE wallet_id = '${walletId}'`))).rows[0]?.funds);
     var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    app.use(session({secret: 'ssshhhhh'}))
     var user = {
         userId,
         username,
         walletId,
-        funds
+        funds,
+        bettedAmount: session.Store.amountBet
     }
     res.render('play', user)
 })
