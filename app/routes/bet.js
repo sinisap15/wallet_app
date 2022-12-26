@@ -8,7 +8,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
-app.use(session({secret: 'ssshhhhh'}))
+app.use(session({secret: 'ssshhhhh', resave: false}))
 session.Store.amountBet = 0;
 
 router.post('/win/:userId', async (req, res) => {
