@@ -19,4 +19,3 @@ async function addFunds(addedFunds, wallet_id) {
 }
 
 module.exports = addFunds;
-// addFunds(500, 10);

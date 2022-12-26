@@ -26,5 +26,3 @@ async function createWallet(user) {
 }
 
 module.exports = createWallet;
-
-// createWallet(8);

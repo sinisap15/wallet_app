@@ -15,8 +15,8 @@ router.get('/query', (req, res) => {
   res.render('profile', data);
 })
 
-router.get('/registerUser', (req, res) => {
-  res.render('registerUser', null)
+router.get('/register', (req, res) => {
+  res.render('register', null)
 })
 
 router.get('/login', (req, res) => {
