@@ -1,13 +1,10 @@
-const { pool } = require('./db.js')
+const { createNewUser } = require('./app.js')
 
+// Create a new user
 async function createUser(username, firstName, lastName, password, email, createdOn) {
     var createdOn = new Date();
     try {
-        const res = await pool.query(
-        "INSERT INTO accounts (username, firstname, lastname, password, email, created_on) VALUES ($1, $2, $3, $4, $5, $6)",
-        [username, firstName, lastName, password, email, createdOn]
-    );
-    console.log(`Added a user with the name ${username}`);
+        await createNewUser(username, firstName, lastName, password, email, createdOn);
     } catch (err) {
         console.log(err);
     }

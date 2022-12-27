@@ -1,22 +1,23 @@
-const { pool } = require('./db.js');
+const { getUserList } = require('./app.js');
+const { getAccountWallets } = require('./app.js');
+const { createNewWallet } = require('./app.js');
+const { linkAccountToWallet } = require('./app.js');
+const { db } = require('./db.js');
 
+// Create a new wallet and link it to the user
 async function createWallet(user) {
-    var userList = await pool.query(`SELECT * FROM accounts WHERE user_id = ${user}`);
-    if (userList.rows.length == 0) {
+    var userList = await getUserList();
+    if (userList.length == 0) {
         console.log("User does not exist");
         return;
     };
-    var account_wallets = await pool.query(`SELECT * FROM account_wallets WHERE user_id = ${user}`);
-    if (account_wallets.rows.length === 0) {
-        var query = 'INSERT INTO wallet (funds) VALUES ($1)';
-        var data = [0];
+    var account_wallets = await getAccountWallets(user);
+    if (account_wallets.length === 0) {
         try {
-            pool.query(query, data);
-            var walletId = await (await (await pool.query(`SELECT max(wallet_id) FROM wallet`)).rows[0].max);
-            query = 'INSERT INTO account_wallets (user_id, wallet_id, grant_date) VALUES ($1, $2, $3)';
-            data = [user, walletId, new Date()];
-            pool.query(query, data);
-            console.log(`Created a wallet for user ${user}`);
+            await createNewWallet();
+            var walletId = await db.one('SELECT max(wallet_id) FROM wallet');
+            await linkAccountToWallet(user, walletId.max, new Date());
+            window.location.reload();
         } catch (error) {
             console.error(error);
         }

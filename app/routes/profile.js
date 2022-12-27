@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const { pool } = require('../public/js/db.js')
 const createUser = require('../public/js/createUser.js')
 const createWallet = require('../public/js/createWallet.js')
 const addFunds = require('../public/js/addFunds.js')
@@ -8,8 +7,11 @@ const removeFunds = require('../public/js/removeFunds.js')
 const app = express();
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const { getWalletId } = require('../public/js/db.js'); 
-const { getFunds } = require('../public/js/db.js');
+const { getWalletId } = require('../public/js/app.js'); 
+const { getFunds } = require('../public/js/app.js');
+const { getUserId } = require('../public/js/app.js');
+const { getUsername } = require('../public/js/app.js');
+const { getTransactions } = require('../public/js/app.js');
 
 router.post('/profile', (req, res) => {
     const body = req.body
@@ -19,7 +21,7 @@ router.post('/profile', (req, res) => {
 
 router.get('/profile/:username', async (req, res) => {
     const username = req.params.username
-    var userId = (await (await (pool.query(`SELECT user_id FROM accounts WHERE username = '${username}'`))).rows[0]?.user_id);
+    var userId = await getUserId(username);
     if (userId == undefined) {
         res.send('User does not exist');
     } else {
@@ -38,7 +40,7 @@ router.get('/profile/:username', async (req, res) => {
 
 router.get('/createWallet/:userId', async (req, res) => {
     const userId = req.params.userId
-    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    var username = await getUsername(userId);
     var walletId = await getWalletId(userId);
     if (walletId == undefined) {
         createWallet(userId);
@@ -62,13 +64,12 @@ router.post('/deposit/:userId', async (req, res) => {
     const body = req.body
     const userId = req.params.userId
     const amount = parseFloat(body.deposit)
-    console.log(amount);
     if (amount <= 0 || isNaN(amount)) {
         return res.jsonp({error: 'Invalid amount'})
     }
     var walletId = await getWalletId(userId);
-    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
-    addFunds(amount, walletId);
+    var username = await getUsername(userId);
+    addFunds(amount, walletId, 'Deposit');
     res.redirect('/profile/' + username)
 })
 
@@ -77,14 +78,14 @@ router.post('/withdraw/:userId', async (req, res) => {
     const userId = req.params.userId
     const amount = parseFloat(body.withdraw)
     var walletId = await getWalletId(userId);
-    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    var username = await getUsername(userId);
     var funds = await getFunds(walletId);
     if (amount <= 0 || isNaN(amount)) {
         return res.jsonp({error: 'Invalid amount'})
     } else if (amount > funds) {
         return res.jsonp({error: 'Insufficient funds'})
     }
-    removeFunds(amount, walletId);
+    removeFunds(amount, walletId, 'Withdraw');
     res.redirect('/profile/' + username)
 })
 
@@ -92,7 +93,7 @@ router.get('/:userId/play', async(req, res) => {
     const userId = req.params.userId
     var walletId = await getWalletId(userId);
     var funds = await getFunds(walletId);
-    var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
+    var username = await getUsername(userId);
     // this could be wrong beacuse we need stateless application but express-session makes it - not strictly stateless
     app.use(session({secret: 'ssshhhhh'}))
     var user = {
@@ -107,7 +108,7 @@ router.get('/:userId/play', async(req, res) => {
 
 router.get('/view/transactions/:userId', async(req, res) => {
     const userId = req.params.userId
-    var transactions = (await (await (pool.query(`SELECT * FROM transactions WHERE user_id = '${userId}'`))).rows);
+    var transactions = await getTransactions(userId);
     res.json({transactions})
 })
 

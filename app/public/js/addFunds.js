@@ -1,21 +1,19 @@
-const { pool } = require('./db.js');
-const { getFunds } = require('./db.js');
-const { getWalletId } = require('./db.js');
+const { getFunds } = require('./app.js');
+const { getWalletId } = require('./app.js');
+const { db } = require('./db.js');
+const { depositFunds } = require('./app.js');
+const { createTransaction } = require('./app.js');
 
 // Deposit or win transaction
-async function addFunds(addedFunds, wallet_id) {
-    var userId = parseInt(await (await pool.query(`SELECT user_id FROM account_wallets WHERE wallet_id = ${wallet_id}`)).rows[0].user_id);
+async function addFunds(addedFunds, wallet_id, transactionType) {
+    var user = await db.one('SELECT user_id FROM account_wallets WHERE wallet_id = $1', wallet_id)
+    var userId = parseInt(user.user_id);
     var walletId = await getWalletId(userId);
     var funds = await getFunds(walletId);
     var newFunds = funds + addedFunds;
-    var query = 'UPDATE wallet SET funds = $1 WHERE wallet_id = $2'
-    var data = [newFunds, wallet_id];
     try {
-        pool.query(query, data);
-        query = 'INSERT INTO transactions (user_id, funds_before, funds_after, transaction_date) VALUES ($1, $2, $3, $4)';
-        data = [userId, funds, newFunds, new Date()];
-        pool.query(query, data);
-        console.log(`Updated the wallet funds to ${newFunds}`);
+        await depositFunds(newFunds, wallet_id);
+        await createTransaction(userId, funds, newFunds, new Date(), transactionType);
     } catch (error) {
         console.error(error);
     }
