@@ -1,9 +1,12 @@
 const { pool } = require('./db.js');
+const { getFunds } = require('./db.js');
+const { getWalletId } = require('./db.js');
 
 // Deposit or win transaction
 async function addFunds(addedFunds, wallet_id) {
-    var funds = parseInt(await (await pool.query(`SELECT funds FROM wallet WHERE wallet_id = ${wallet_id}`)).rows[0].funds);
     var userId = parseInt(await (await pool.query(`SELECT user_id FROM account_wallets WHERE wallet_id = ${wallet_id}`)).rows[0].user_id);
+    var walletId = await getWalletId(userId);
+    var funds = await getFunds(walletId);
     var newFunds = funds + addedFunds;
     var query = 'UPDATE wallet SET funds = $1 WHERE wallet_id = $2'
     var data = [newFunds, wallet_id];

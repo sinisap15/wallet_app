@@ -1,4 +1,5 @@
 // Full Documentation - https://docs.turbo360.co
+"use strict";
 const vertex = require('vertex360')({ site_id: process.env.TURBO_APP_ID })
 const express = require('express')
 const { Pool } = require('pg');

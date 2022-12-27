@@ -8,6 +8,8 @@ const removeFunds = require('../public/js/removeFunds.js')
 const app = express();
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const { getWalletId } = require('../public/js/db.js'); 
+const { getFunds } = require('../public/js/db.js');
 
 router.post('/profile', (req, res) => {
     const body = req.body
@@ -21,15 +23,14 @@ router.get('/profile/:username', async (req, res) => {
     if (userId == undefined) {
         res.send('User does not exist');
     } else {
-        var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+        var walletId = await getWalletId(userId);
         if (walletId != undefined) {
-            var wallet_funds = (await (await (pool.query(`SELECT funds FROM wallet WHERE wallet_id = '${walletId}'`))).rows[0]?.funds);
-            console.log(wallet_funds)
+            var funds = await getFunds(walletId);
         }
         const user = {
             userId,
             username,
-            wallet_funds: wallet_funds ?? 'No wallet found'
+            wallet_funds: funds ?? 'No wallet found'
         }
         res.render('profile', user)
     }
@@ -38,7 +39,7 @@ router.get('/profile/:username', async (req, res) => {
 router.get('/createWallet/:userId', async (req, res) => {
     const userId = req.params.userId
     var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
-    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var walletId = await getWalletId(userId);
     if (walletId == undefined) {
         createWallet(userId);
         res.redirect('/profile/' + username);
@@ -65,7 +66,7 @@ router.post('/deposit/:userId', async (req, res) => {
     if (amount <= 0 || isNaN(amount)) {
         return res.jsonp({error: 'Invalid amount'})
     }
-    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var walletId = await getWalletId(userId);
     var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
     addFunds(amount, walletId);
     res.redirect('/profile/' + username)
@@ -75,12 +76,12 @@ router.post('/withdraw/:userId', async (req, res) => {
     const body = req.body
     const userId = req.params.userId
     const amount = parseFloat(body.withdraw)
-    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
+    var walletId = await getWalletId(userId);
     var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
-    var currentFunds = (await (await (pool.query(`SELECT funds FROM wallet WHERE wallet_id = '${walletId}'`))).rows[0]?.funds);
+    var funds = await getFunds(walletId);
     if (amount <= 0 || isNaN(amount)) {
         return res.jsonp({error: 'Invalid amount'})
-    } else if (amount > currentFunds) {
+    } else if (amount > funds) {
         return res.jsonp({error: 'Insufficient funds'})
     }
     removeFunds(amount, walletId);
@@ -89,10 +90,10 @@ router.post('/withdraw/:userId', async (req, res) => {
 
 router.get('/:userId/play', async(req, res) => {
     const userId = req.params.userId
-    var walletId = (await (await (pool.query(`SELECT wallet_id FROM account_wallets WHERE user_id = '${userId}'`))).rows[0]?.wallet_id);
-    var funds = (await (await (pool.query(`SELECT funds FROM wallet WHERE wallet_id = '${walletId}'`))).rows[0]?.funds);
+    var walletId = await getWalletId(userId);
+    var funds = await getFunds(walletId);
     var username = (await (await (pool.query(`SELECT username FROM accounts WHERE user_id = '${userId}'`))).rows[0]?.username);
-    // this could be wrong beacuse we need stateless application but express-session makes it not strictly stateless
+    // this could be wrong beacuse we need stateless application but express-session makes it - not strictly stateless
     app.use(session({secret: 'ssshhhhh'}))
     var user = {
         userId,
